@@ -118,7 +118,7 @@ EOF
                 branch 'dev'
             }
             input {
-                message "Do you want to run Ansible?"
+                message "Do you want to run Ansible ?"
                 ok "Run Ansible"
             }
             steps {
