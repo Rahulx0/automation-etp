@@ -91,7 +91,7 @@ pipeline {
                             set -euxo pipefail
                             cat > dynamic_inventory.ini <<EOF
 [grafana]
-${INSTANCE_IP}
+${INSTANCE_IP} ansible_user=ubuntu
 EOF
                         '''
                     }
@@ -134,13 +134,11 @@ EOF
                     chmod 700 ~/.ssh
                     ssh-keyscan -H ${INSTANCE_IP} >> ~/.ssh/known_hosts
                 '''
-                withEnv(['ANSIBLE_HOST_KEY_CHECKING=False']) {
-                    ansiblePlaybook(
-                        playbook: 'ansible/playbook.yml',
-                        inventory: 'dynamic_inventory.ini', 
-                        credentialsId: SSH_CRED_ID, // Key is securely injected by the plugin here
-                    )
-                }
+                ansiblePlaybook(
+                    playbook: 'ansible/playbook.yml',
+                    inventory: 'dynamic_inventory.ini', 
+                    credentialsId: SSH_CRED_ID, // Key is securely injected by the plugin here
+                )
             }
         }
         stage('Validate Destroy') {
