@@ -1,0 +1,6 @@
+region            = "us-east-1"
+subnet_id         = "subnet-0abcdef1234567890"
+key_name          = "kratos"
+instance_type     = "t3.micro"
+ingress_cidr_ssh  = "0.0.0.0/0"      
+ingress_cidr_grafana = "0.0.0.0/0"  

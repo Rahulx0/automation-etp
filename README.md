@@ -7,14 +7,11 @@
 
 ## What you must set up in Jenkins
 1) Plugins/tools: Git plugin, Pipeline, GitHub, Ansible and awscli available on the agent, `jq` installed.
-2) Credentials:
-   - `aws-access-key-id` (Secret text) with your AWS access key ID.
-   - `aws-secret-access-key` (Secret text) with your AWS secret.
-   - `grafana-ssh-key` (SSH Username with private key) matching the AWS key pair you use for the EC2 instance; username typically `ubuntu` for Ubuntu AMIs.
-3) Global env (or edit Jenkinsfile env):
-   - `AWS_DEFAULT_REGION` (e.g., us-east-1)
-   - `AWS_SUBNET_ID`, `AWS_KEY_PAIR`
-   - Optional: `AWS_SECURITY_GROUP` (if you want to reuse an existing one), `AWS_INSTANCE_TYPE`, `GRAFANA_SSH_USER`, `SSH_CIDR`, `GRAFANA_CIDR`
+2) Credentials (create these IDs in Jenkins):
+   - `aws-access-key-id` (Secret text): AWS access key ID.
+   - `aws-secret-access-key` (Secret text): AWS secret access key.
+   - `grafana-ssh-key` (SSH Username with private key): matches the AWS key pair; username typically `ubuntu` for Ubuntu AMIs.
+3) Terraform variables: copy `terraform/terraform.tfvars.example` to `terraform/terraform.tfvars` and fill `region`, `subnet_id`, `key_name`, CIDRs, and optionally `existing_sg_id`. Pipeline only runs `terraform apply/destroy -var-file=terraform.tfvars`.
 4) Webhook trigger: enable “GitHub hook trigger for GITScm polling”.
 
 ## Ngrok + GitHub webhook quick steps
