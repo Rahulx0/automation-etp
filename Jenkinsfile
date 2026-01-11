@@ -7,7 +7,7 @@ pipeline {
         LANGUAGE = 'en_US.UTF-8'
         TF_IN_AUTOMATION = 'true'
         TF_CLI_ARGS = '-no-color'
-        SSH_CRED_ID = 'privatekey' 
+        SSH_CRED_ID = 'private-key' 
         AWS_CRED_ID = 'badf87b5-c81c-440d-87b5-1698b311dcdd'
         TF_DIR = 'terraform'
     }
