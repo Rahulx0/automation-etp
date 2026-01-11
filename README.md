@@ -11,7 +11,7 @@
    - `aws-access-key-id` (Secret text): AWS access key ID.
    - `aws-secret-access-key` (Secret text): AWS secret access key.
    - `grafana-ssh-key` (SSH Username with private key): matches the AWS key pair; username typically `ubuntu` for Ubuntu AMIs.
-3) Terraform variables: copy `terraform/terraform.tfvars.example` to `terraform/terraform.tfvars` and fill `region`, `subnet_id`, `key_name`, CIDRs, and optionally `existing_sg_id`. Pipeline only runs `terraform apply/destroy -var-file=terraform.tfvars`.
+3) Terraform variables: copy `terraform/terraform.tfvars.example` to `terraform/terraform.tfvars` and fill `region`, `key_name`, CIDRs, and optionally `existing_sg_id`. `subnet_id` is optional—leave it blank and Terraform will create a simple VPC + public subnet (10.0.1.0/24) with internet access for you. Pipeline only runs `terraform apply/destroy -var-file=terraform.tfvars`.
 4) Webhook trigger: enable “GitHub hook trigger for GITScm polling”.
 
 ## Ngrok + GitHub webhook quick steps

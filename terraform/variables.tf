@@ -6,6 +6,7 @@ variable "region" {
 variable "subnet_id" {
   type        = string
   description = "Subnet ID to place the instance in"
+  default     = "" # empty means use default subnet in the region
 }
 
 variable "key_name" {
