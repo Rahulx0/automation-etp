@@ -9,21 +9,39 @@ pipeline {
         TF_CLI_ARGS = '-no-color'
         SSH_CRED_ID = 'privatekey' 
         AWS_CRED_ID = 'badf87b5-c81c-440d-87b5-1698b311dcdd'
+        TF_DIR = 'terraform'
     }
 
     stages {
         stage('Terraform Initialization') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: env.AWS_CRED_ID]]) {
-                    sh 'terraform init'
-                    sh "cat ${env.BRANCH_NAME}.tfvars"
+                    sh 'set -euxo pipefail'
+                    sh 'ls -la ${TF_DIR}'
+                    sh 'terraform -chdir=${TF_DIR} init -input=false'
+                    sh '''
+                        set -euxo pipefail
+                        VAR_FILE="${BRANCH_NAME}.tfvars"
+                        if [ ! -f "${TF_DIR}/${VAR_FILE}" ]; then
+                          VAR_FILE="terraform.tfvars"
+                        fi
+                        echo "Using var file: ${VAR_FILE}"
+                        cat "${TF_DIR}/${VAR_FILE}"
+                    '''
                 }
             }
         }
         stage('Terraform Plan') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: env.AWS_CRED_ID]]) {
-                    sh script: "terraform plan -var-file=${env.BRANCH_NAME}.tfvars"
+                    sh '''
+                        set -euxo pipefail
+                        VAR_FILE="${BRANCH_NAME}.tfvars"
+                        if [ ! -f "${TF_DIR}/${VAR_FILE}" ]; then
+                          VAR_FILE="terraform.tfvars"
+                        fi
+                        terraform -chdir=${TF_DIR} plan -input=false -var-file=${VAR_FILE}
+                    '''
                 }
             }
         }
@@ -44,17 +62,24 @@ pipeline {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: env.AWS_CRED_ID]]) {
                     script {
-                        sh "terraform apply -auto-approve -var-file=${env.BRANCH_NAME}.tfvars"
+                        sh '''
+                            set -euxo pipefail
+                            VAR_FILE="${BRANCH_NAME}.tfvars"
+                            if [ ! -f "${TF_DIR}/${VAR_FILE}" ]; then
+                              VAR_FILE="terraform.tfvars"
+                            fi
+                            terraform -chdir=${TF_DIR} apply -auto-approve -input=false -var-file=${VAR_FILE}
+                        '''
 
                         // 1. Extract Public IP Address of the provisioned instance
                         env.INSTANCE_IP = sh(
-                            script: 'terraform output -raw instance_public_ip', 
+                            script: 'terraform -chdir=${TF_DIR} output -raw instance_public_ip', 
                             returnStdout: true
                         ).trim()
                         
                         // 2. Extract Instance ID (for AWS CLI wait) 
                         env.INSTANCE_ID = sh(
-                            script: 'terraform output -raw instance_id', 
+                            script: 'terraform -chdir=${TF_DIR} output -raw instance_id', 
                             returnStdout: true
                         ).trim()
 
@@ -121,7 +146,14 @@ pipeline {
         stage('Destroy') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: env.AWS_CRED_ID]]) {
-                    sh "terraform destroy -auto-approve -var-file=${env.BRANCH_NAME}.tfvars"
+                    sh '''
+                        set -euxo pipefail
+                        VAR_FILE="${BRANCH_NAME}.tfvars"
+                        if [ ! -f "${TF_DIR}/${VAR_FILE}" ]; then
+                          VAR_FILE="terraform.tfvars"
+                        fi
+                        terraform -chdir=${TF_DIR} destroy -auto-approve -input=false -var-file=${VAR_FILE}
+                    '''
                 }
             }
         }
