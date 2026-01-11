@@ -176,6 +176,9 @@ EOF
         //     sh "terraform -chdir=${env.TF_DIR} destroy -auto-approve -input=false -var-file=${env.BRANCH_NAME}.tfvars || echo \"Cleanup failed, please check manually.\""
         // }
         failure {
+            timeout(time: 10, unit: 'MINUTES') {
+                input message: 'Build failed. Destroy infrastructure?', ok: 'Destroy'
+            }
             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: env.AWS_CRED_ID]]) {
                 sh '''
                     set -euxo pipefail
@@ -188,6 +191,9 @@ EOF
             }
         }
         aborted {
+            timeout(time: 10, unit: 'MINUTES') {
+                input message: 'Build aborted. Destroy infrastructure?', ok: 'Destroy'
+            }
             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: env.AWS_CRED_ID]]) {
                 sh '''
                     set -euxo pipefail
