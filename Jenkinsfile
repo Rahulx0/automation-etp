@@ -173,11 +173,30 @@ EOF
             echo 'Success!'
         }
         // failure {
-        //     sh "terraform destroy -auto-approve -var-file=${env.BRANCH_NAME}.tfvars || echo \"Cleanup failed, please check manually.\""
+        //     sh "terraform -chdir=${env.TF_DIR} destroy -auto-approve -input=false -var-file=${env.BRANCH_NAME}.tfvars || echo \"Cleanup failed, please check manually.\""
         // }
+        failure {
+            withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: env.AWS_CRED_ID]]) {
+                sh '''
+                    set -euxo pipefail
+                    VAR_FILE="${BRANCH_NAME}.tfvars"
+                    if [ ! -f "${TF_DIR}/${VAR_FILE}" ]; then
+                      VAR_FILE="terraform.tfvars"
+                    fi
+                    terraform -chdir=${TF_DIR} destroy -auto-approve -input=false -var-file=${VAR_FILE} || echo "Cleanup failed, please check manually."
+                '''
+            }
+        }
         aborted {
             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: env.AWS_CRED_ID]]) {
-                sh "terraform destroy -auto-approve -var-file=${env.BRANCH_NAME}.tfvars || echo \"Cleanup failed, please check manually.\""
+                sh '''
+                    set -euxo pipefail
+                    VAR_FILE="${BRANCH_NAME}.tfvars"
+                    if [ ! -f "${TF_DIR}/${VAR_FILE}" ]; then
+                      VAR_FILE="terraform.tfvars"
+                    fi
+                    terraform -chdir=${TF_DIR} destroy -auto-approve -input=false -var-file=${VAR_FILE} || echo "Cleanup failed, please check manually."
+                '''
             }
         }
     }
