@@ -87,7 +87,13 @@ pipeline {
                         echo "Provisioned Instance ID: ${env.INSTANCE_ID}"
                         
                         // 3. Create a dynamic inventory file for Ansible 
-                        sh "echo '${env.INSTANCE_IP}' > dynamic_inventory.ini"
+                        sh '''
+                            set -euxo pipefail
+                            cat > dynamic_inventory.ini <<EOF
+[grafana]
+${INSTANCE_IP}
+EOF
+                        '''
                     }
                 }
             }
