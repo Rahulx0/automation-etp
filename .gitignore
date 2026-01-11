@@ -1,0 +1,14 @@
+# SSH keys
+kratos
+kratos.pub
+
+# Terraform local artifacts
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/*.tfvars
+terraform/*auto.tfvars
+
+# Jenkins/Ansible runtime artifacts
+dynamic_inventory.ini
